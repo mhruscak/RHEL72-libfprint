@@ -1,0 +1,43 @@
+See install.sh script to see required steps.
+
+If it did not work at first, probably because you have different version of
+RHEL or Thinkpad model, try build library ypurself using recipe below.
+
+-------------------------------------------------------------------------------
+
+This fprint library was builded using sources
+from https://github.com/abbradar/fprint_vfs5011:
+1 ./autogen.sh
+2 ./configure
+3  make
+4  make install
+
+
+These packages was needed to install to fulfill ./autogen.sh requirements:
+
+    Install     libXv-devel-1.0.10-2.el7.x86_64        @rhel-7-workstation-rpms
+    Install     gdk-pixbuf2-devel-2.31.6-3.el7.x86_64  @rhel-7-workstation-rpms
+    Install     ImageMagick-6.7.8.9-15.el7_2.x86_64    @rhel-7-workstation-rpms
+    Install     glib2-devel-2.42.2-5.el7.x86_64        @rhel-7-workstation-rpms
+    Install     nss-devel-3.21.0-9.el7_2.x86_64        @rhel-7-workstation-rpms
+    Install     libusbx-devel-1.0.15-4.el7.x86_64      @rhel-7-workstation-rpms
+
+
+Lines from this patch should contain $(GLIB_LIBS) on the end of line:
+https://bugs.freedesktop.org/attachment.cgi?id=78274
+If not, add them manually
+
+example:
+libfprint/Makefile.in:fprint_list_udev_rules_LDADD = $(builddir)/libfprint.la $(GLIB_LIBS)
+libfprint/Makefile.in:  $(AM_V_CCLD)$(fprint_list_udev_rules_LINK) $(fprint_list_udev_rules_OBJECTS) $(fprint_list_udev_rules_LDADD) $(LIBS)
+libfprint/Makefile:fprint_list_udev_rules_LDADD = $(builddir)/libfprint.la $(GLIB_LIBS)
+libfprint/Makefile:     $(AM_V_CCLD)$(fprint_list_udev_rules_LINK) $(fprint_list_udev_rules_OBJECTS) $(fprint_list_udev_rules_LDADD) $(LIBS)
+libfprint/Makefile.am:fprint_list_udev_rules_LDADD = $(builddir)/libfprint.la $(GLIB_LIBS)
+
+
+At the end, make link to builded library:
+echo '/usr/local/lib' > /etc/ld.so.conf.d/local.conf
+
+
+Reload:
+ldconfig
